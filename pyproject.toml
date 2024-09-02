@@ -1,0 +1,90 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "scrapethedocs"
+description = "Scrapethedocs is a Python-based tool designed to efficiently scrape and extract documentation from Python package websites "
+readme = "README.md"
+classifiers = [
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+]
+keywords = [""]
+urls = {Homepage = "https://github.com/viktorChekhovoi/scrapethedocs"}
+requires-python = ">=3.12"
+dependencies = [
+]
+version = "0.0.1"
+
+[project.optional-dependencies]
+docs = [
+    "piccolo_theme >= 0.11.1",
+    "sphinx-autodoc-typehints == 1.14.1",
+    "sphinx-notfound-page == 0.8.3",
+    "sphinx_copybutton == 0.5.2",
+    "sphinx_tabs == 3.2.0",
+    "sphinx-prompt == 1.5.0",
+    "sphinx_toolbox == 3.4.0",
+]
+dev = [
+    "pdbpp >= 0.10.3",
+    "black == 24.8.0",
+    "pydocstyle == 6.1.1",
+    "flake8 == 4.0.1",
+    "pytest == 7.1.1",
+    "pytest-cov == 3.0.0",
+    "coverage == 6.5.0",
+    "pytest-mock == 3.8.2",
+    "pylint == 2.13.9",
+    "isort == 5.10.1",
+    "pre-commit == 2.19.0",
+    "types-requests == 2.31.0.2",
+    "pyright == 1.1.378",
+]
+all = ["scrapethedocs[docs,dev]"]
+
+
+[tool.setuptools]
+py-modules = ["scrapethedocs"]
+
+[tool.black]
+line-length = 99
+target-version = ["py312"]
+
+[tool.pylint.format]
+max-line-length = 99
+max-locals = 25
+
+[tool.pylint.basic]
+good-names = ''',df,e,tg,i,j,k,id,logger,n,on,tz,x,y,z,r,ex,ey,,s,f,v,a,b,mu,fn,op,q,cf,tb'''
+additional-builtins = '''reveal_type'''
+[tool.pylint.message_control]
+disable = '''duplicate-code,C0330,cyclic-import,too-many-arguments,too-few-public-methods,logging-fstring-interpolation,logging-not-lazy,not-callable,no-member,unsubscriptable-object,pointless-string-statement,wrong-import-order,not-an-iterable,no-else-return,unsupported-membership-test,abstract-class-instantiated,unpacking-non-sequence'''
+extension-pkg-allow-list = ["pymssql._mssql"]
+
+[tool.pylint.miscellaneous]
+notes = '''FIXME,XXX'''
+
+[tool.pylint.similarities]
+min-similarity-lines = 4
+ignore-comments = "yes"
+ignore-docstrings = "yes"
+ignore-imports = "yes"
+
+[tool.pylint.main]
+extension-pkg-whitelist = ""
+ignore-paths = ["^docs/*"]
+
+[tool.pylint.options]
+#generated-members="torch.*"
+
+#[tool.pytest.ini_options]
+#addopts = "-ra --cov={PACKAGE_NAME}--cov-report=term-missing --strict-markers --ignore=.eggs --tb=short --junitxml=test-results.xml --cov-report=html --cov-report=xml"
+#testpaths = ["tests"]
+#norecursedirs = ".env .git .venv build dist "
+#python_files = "test.py tests.py test_*.py *_test.py"
+
+[tool.isort]
+skip = ["__init__.py"]
+profile = "black"
