@@ -16,6 +16,7 @@ This module supports the following functions:
 
 import requests
 import re
+from scrapethedocs._link_extraction import extract_links_by_class
 
 
 def get_doc_home_url(package_name: str) -> str | None:
@@ -72,29 +73,13 @@ def get_doc_reference_url(package_url: str) -> list[str]:
     Raises:
         ValueError: A 4xx error while getting the links
     """
-    response: requests.Response = requests.get(package_url)
-    if response.status_code == 200:
-        package_info: str = response.text
-        pattern = re.compile(
-            r'<a[^>]*class=["\'][^"\']*reference[^"\']*internal[^"\']*["\'][^>]*href=["\']([^"\']*)["\'][^>]*>',  # regular expression, so pylint: disable=line-too-long
-            re.IGNORECASE,
-        )
-        matches = pattern.findall(package_info)
-        full_links = [package_url]
-        for match in matches:
-            if re.match(r"^http", match) is not None:
-                full_links.append(f"{package_url}/{match}")
-            else:
-                full_links.append(match)
-        return full_links
-
-    elif response.status_code in range(400, 500):
-        raise ValueError(f"Bad request: received {response.status_code} for URL '{package_url}'.")
-    else:
+    links = extract_links_by_class(package_url, ["reference", "internal"])
+    if len(links) == 0:
         return [package_url]
+    return links
 
 
-def get_section_titles(package_url: str) -> list[str]:
+def get_section_titles(package_url: str) -> dict[str, str]:
     """
     Get the section titles from a documentation page
 
@@ -102,8 +87,9 @@ def get_section_titles(package_url: str) -> list[str]:
         package_url: the link to the home page of the package's documentation
 
     Returns:
-        A list of section titles, with subsection titles formatted as
-        'section/subsection/subsubsection', if any sections are found.
+        A list of tuples, consisting of section titles, with subsection titles formatted as
+        'section/subsection/subsubsection', and the links to those sections,
+        if any sections are found.
         None if no sections are found.
 
 
