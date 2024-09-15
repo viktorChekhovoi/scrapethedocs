@@ -2,10 +2,10 @@
 Functions to assist with link extraction
 """
 
-import re
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 import requests
+from bs4 import BeautifulSoup
 
 
 def extract_links_by_class(base_url: str, classes: list[str]) -> list[str]:
@@ -14,29 +14,27 @@ def extract_links_by_class(base_url: str, classes: list[str]) -> list[str]:
     where the elements have the specified classes
 
     Args:
-        base_url: a link to the webpage
-        classes: a list of classes to filter <a> elements
+        base_url:       a link to the webpage
+        classes:        a list of classes to filter <a> elements
 
     Returns:
-        A list of links from the <a> elements
+        full_links:     a list of links from the <a> elements
 
     Raises:
-        ValueError: A 4xx error while getting the link.
+        ValueError:     a 4xx error while getting the link.
     """
-    response: requests.Response = requests.get(base_url)
+    response: requests.Response = requests.get(base_url, timeout=10)
     if response.status_code == 200:
-        class_patern = r'[^"\']*'.join(re.escape(html_class) for html_class in classes)
-        pattern = re.compile(
-            rf'<a[^>]*class=["\'][^"\']*{class_patern}[^"\']*["\'][^>]*href=["\']([^"\']*)["\'][^>]*>',  # regular expression, so pylint: disable=line-too-long
-            re.IGNORECASE,
-        )
-        matches = pattern.findall(response.text)
+        soup = BeautifulSoup(response.text, "html.parser")
+        internal_links: list[str] = soup.find_all("a", class_=" ".join(classes))
         full_links = [base_url]
-        for match in matches:
-            if re.match(r"^http", match) is not None:
-                full_links.append(urljoin(base_url, match))
+        for link in internal_links:
+            # Check if the link is an absolute link
+            if bool(urlparse(link).netloc):
+                full_links.append(link)
             else:
-                full_links.append(match)
+                full_links.append(urljoin(base_url, link))
+
         return full_links
 
     elif response.status_code in range(400, 500):

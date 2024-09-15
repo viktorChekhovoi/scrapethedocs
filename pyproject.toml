@@ -41,6 +41,7 @@ dev = [
     "pre-commit == 2.19.0",
     "types-requests == 2.31.0.2",
     "pyright == 1.1.378",
+    "beautifulsoup4 == 4.12.3"
 ]
 all = ["scrapethedocs[docs,dev]"]
 
@@ -60,7 +61,7 @@ max-locals = 25
 good-names = ''',df,e,tg,i,j,k,id,logger,n,on,tz,x,y,z,r,ex,ey,,s,f,v,a,b,mu,fn,op,q,cf,tb'''
 additional-builtins = '''reveal_type'''
 [tool.pylint.message_control]
-disable = '''duplicate-code,C0330,cyclic-import,too-many-arguments,too-few-public-methods,logging-fstring-interpolation,logging-not-lazy,not-callable,no-member,unsubscriptable-object,pointless-string-statement,wrong-import-order,not-an-iterable,no-else-return,unsupported-membership-test,abstract-class-instantiated,unpacking-non-sequence'''
+disable = '''cyclic-import,too-many-arguments,too-few-public-methods,logging-fstring-interpolation,logging-not-lazy,not-callable,no-member,unsubscriptable-object,pointless-string-statement,wrong-import-order,not-an-iterable,no-else-return,unsupported-membership-test,abstract-class-instantiated,unpacking-non-sequence'''
 extension-pkg-allow-list = ["pymssql._mssql"]
 
 [tool.pylint.miscellaneous]

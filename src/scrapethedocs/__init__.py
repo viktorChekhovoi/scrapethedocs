@@ -15,8 +15,8 @@ This module supports the following functions:
 """
 
 import requests
-import re
 from scrapethedocs._link_extraction import extract_links_by_class
+from scrapethedocs._text_extraction import get_all_titles
 
 
 def get_doc_home_url(package_name: str) -> str | None:
@@ -34,11 +34,11 @@ def get_doc_home_url(package_name: str) -> str | None:
         ValueError: A 4xx error while getting the link.
     """
     pypi_url = f"https://pypi.org/pypi/{package_name}/json"
-    response: requests.Response = requests.get(pypi_url)
+    response: requests.Response = requests.get(pypi_url, timeout=10)
     if response.status_code == 200:
         package_info: dict = response.json()
         if not package_info or (
-            "message" in package_info and package_info["message" == "Not Found"]
+            "message" in package_info and package_info["message"] == "Not Found"
         ):
             return None
 
@@ -79,34 +79,28 @@ def get_doc_reference_url(package_url: str) -> list[str]:
     return links
 
 
-def get_section_titles(package_url: str) -> dict[str, str]:
+def get_section_titles(package_url: str) -> list[tuple[str, str]]:
     """
-    Get the section titles from a documentation page
+    Get the section titles and URLs from a documentation page
 
     Args:
         package_url: the link to the home page of the package's documentation
 
     Returns:
-        A list of tuples, consisting of section titles, with subsection titles formatted as
-        'section/subsection/subsubsection', and the links to those sections,
-        if any sections are found.
+        A list of tuples (title, link) if any sections are found.
         None if no sections are found.
-
-
-    Raises:
-        ValueError: A 4xx error while getting the links
     """
-    raise NotImplementedError()
+    links = extract_links_by_class(package_url, ["reference", "internal"])
+    return get_all_titles(links)
 
 
-def extract_section(package_url: str, section_name: str) -> str:
+def extract_section(link: str, section_name: str) -> str:
     """
     Get the text of a given section if it exists
 
     Args:
-        package_url:    the link to the home page of the package's documentation
-        section_name:   the name of the section, with subsection titles formatted as
-                        'section/subsection/subsubsection'
+        link:           the link to the home page of the package's documentation
+        section_name:   the name of the section
 
     Returns:
         The text of the specified section if it exists, None otherwise
