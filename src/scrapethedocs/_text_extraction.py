@@ -4,9 +4,18 @@ Helper functions for text scraping
 
 from aiohttp import ClientSession, TCPConnector
 from anyio import create_task_group
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup, NavigableString, PageElement, Tag
 
 from scrapethedocs._helpers import _to_sync
+
+TEXT_ELEMENTS = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "pre"]
+CONTENT_CLASSES = [
+    "content",
+    "main-content",
+    "rst-content",
+    "bd-main",
+    "bd-content",
+]
 
 
 async def _fetch_title_async(
@@ -66,15 +75,62 @@ async def get_all_titles(links: list[str]) -> list[tuple[str, str]]:
 
 
 @_to_sync
-async def get_page_text(link: str) -> str:
+async def get_page_text(text: str) -> str:
     """
-    Get all relevant text from a URL. Code gets formatted with >>>
+    Get all relevant text from URL contents. Code gets formatted with >>>
 
     Args:
-        link:       the URL to the document
+        link:       the HTML contents of the document
 
     Returns:
         text:       the text of the document
     """
+    soup = BeautifulSoup(text, "html.parser")
+    lines = []
+    processed_tags = set()
 
-    return link
+    def extract_text(element: PageElement) -> None:
+        nonlocal lines
+        nonlocal processed_tags
+        if element in processed_tags:
+            return
+
+        if isinstance(element, NavigableString):
+            text = element.strip()
+            lines.append(text)
+            processed_tags.add(element)
+
+        elif isinstance(element, Tag):
+            if element.name in TEXT_ELEMENTS:
+                lines.append(element.text.strip())
+                processed_tags.add(element)
+
+            elif element.name == "div":
+                classes = element.get("class", [])
+                if classes is not None and "highlight" in classes:
+                    lines.append(element.text.strip())
+                    processed_tags.add(element)
+
+            else:
+                for child in element:
+                    extract_text(child)
+
+    def find_relevant_content(element: Tag) -> Tag | None:
+        if (
+            element.name == "div"
+            and "class" in element.attrs
+            and any(classname in element["class"] for classname in CONTENT_CLASSES)
+        ):
+            return element
+        for child in element.findChildren(recursive=False):
+            found = find_relevant_content(child)
+            if found is not None:
+                return found
+        return None
+
+    content_div = find_relevant_content(soup)
+    if content_div is not None:
+        extract_text(content_div)
+
+    lines = [line for line in lines if len(line) > 0]
+    return "\n".join(lines)

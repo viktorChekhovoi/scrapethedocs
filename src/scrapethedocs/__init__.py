@@ -15,8 +15,8 @@ This module supports the following functions:
 """
 
 import requests
-from scrapethedocs._link_extraction import extract_links_by_class
-from scrapethedocs._text_extraction import get_all_titles
+from scrapethedocs._link_extraction import extract_links_by_class, _get
+from scrapethedocs._text_extraction import get_all_titles, get_page_text
 
 
 def get_doc_home_url(package_name: str) -> str | None:
@@ -34,28 +34,22 @@ def get_doc_home_url(package_name: str) -> str | None:
         ValueError: A 4xx error while getting the link.
     """
     pypi_url = f"https://pypi.org/pypi/{package_name}/json"
-    response: requests.Response = requests.get(pypi_url, timeout=10)
-    if response.status_code == 200:
-        package_info: dict = response.json()
-        if not package_info or (
-            "message" in package_info and package_info["message"] == "Not Found"
-        ):
-            return None
 
-        urls: dict = package_info.get("info", {}).get("project_urls", {})
-        docs_url = urls.get("Documentation")
-        homepage_url = urls.get("Homepage")
-        if docs_url:
-            return docs_url
-        elif homepage_url:
-            return homepage_url
-        else:
-            return None
+    response = _get(pypi_url)
+    if response is None:
+        return None
 
-    elif response.status_code in range(400, 500):
-        raise ValueError(
-            f"Bad request: received {response.status_code} for package '{package_name}'."
-        )
+    package_info: dict = response.json()
+    if not package_info or ("message" in package_info and package_info["message"] == "Not Found"):
+        return None
+
+    urls: dict = package_info.get("info", {}).get("project_urls", {})
+    docs_url = urls.get("Documentation")
+    homepage_url = urls.get("Homepage")
+    if docs_url:
+        return docs_url
+    elif homepage_url:
+        return homepage_url
     else:
         return None
 
@@ -89,27 +83,33 @@ def get_section_titles(package_url: str) -> list[tuple[str, str]]:
     Returns:
         A list of tuples (title, link) if any sections are found.
         None if no sections are found.
+
+    Raises:
+        ValueError:     a 4xx error while getting the link.
     """
     links = extract_links_by_class(package_url, ["reference", "internal"])
     return get_all_titles(links)
 
 
-def extract_section(link: str, section_name: str) -> str:
+def extract_page(link: str) -> str | None:
     """
-    Get the text of a given section if it exists
+    Get the relevant documentation from a given page
 
     Args:
-        link:           the link to the home page of the package's documentation
-        section_name:   the name of the section
+        link:               the link to the home page of the package's documentation
 
     Returns:
-        The text of the specified section if it exists, None otherwise
-
+        The text of the specified section
+        None if it fails to get the text
 
     Raises:
         ValueError: A 4xx error while getting the links
     """
-    raise NotImplementedError()
+    response = _get(link)
+    if response is None:
+        return None
+
+    return get_page_text(response.text)
 
 
 def extract_docs(package_url: str) -> dict[str, str]:
@@ -127,4 +127,9 @@ def extract_docs(package_url: str) -> dict[str, str]:
     Raises:
         ValueError: A 4xx error while getting the links
     """
-    raise NotImplementedError()
+    section_titles = get_section_titles(package_url)
+    output = {}
+    for title, link in section_titles:
+        output[title] = extract_page(link)
+
+    return output
