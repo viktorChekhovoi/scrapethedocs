@@ -2,6 +2,9 @@
 Helper functions for text scraping
 """
 
+import re
+import string
+
 from aiohttp import ClientSession, TCPConnector
 from anyio import create_task_group
 from bs4 import BeautifulSoup, NavigableString, PageElement, Tag
@@ -18,9 +21,7 @@ CONTENT_CLASSES = [
 ]
 
 
-async def _fetch_title_async(
-    session: ClientSession, link: str, results: list[tuple[str, str]]
-) -> None:
+async def _fetch_title_async(session: ClientSession, link: str, results: list[tuple[str, str]]) -> None:
     """
     Get the title of the specified URL.
 
@@ -74,10 +75,9 @@ async def get_all_titles(links: list[str]) -> list[tuple[str, str]]:
     return list(unique_titles.values())
 
 
-@_to_sync
-async def get_page_text(text: str) -> str:
+def get_page_text(text: str) -> str:
     """
-    Get all relevant text from URL contents. Code gets formatted with >>>
+    Get all relevant text from URL contents.
 
     Args:
         link:       the HTML contents of the document
@@ -116,11 +116,7 @@ async def get_page_text(text: str) -> str:
                     extract_text(child)
 
     def find_relevant_content(element: Tag) -> Tag | None:
-        if (
-            element.name == "div"
-            and "class" in element.attrs
-            and any(classname in element["class"] for classname in CONTENT_CLASSES)
-        ):
+        if element.name == "div" and "class" in element.attrs and any(classname in element["class"] for classname in CONTENT_CLASSES):
             return element
         for child in element.findChildren(recursive=False):
             found = find_relevant_content(child)
@@ -134,3 +130,67 @@ async def get_page_text(text: str) -> str:
 
     lines = [line for line in lines if len(line) > 0]
     return "\n".join(lines)
+
+
+def clean_page_text(text: str) -> str:
+    """
+    Cleans text by performing a series of string manipulations.
+
+    The function specifically performs the following cleaning tasks:
+    - Removes non-printable characters.
+    - Eliminates consecutive duplicate lines.
+    - Trims extra spaces.
+    - Cleans up method signatures.
+    - Combines lines for improved readability.
+
+
+    Args:
+        text:   The input content that needs cleaning.
+
+    Returns:
+        The cleaned content.
+    """
+    # Remove non-printable characters
+    doc = "".join(filter(lambda x: x in set(string.printable), text))
+    lines = doc.split("\n")
+
+    # Remove duplicate lines
+    unique_lines = []
+    prev_line = None
+    for line in lines:
+        if line != prev_line:
+            unique_lines.append(line)
+        prev_line = line
+
+    # Combine lines back into a string
+    cleaned_content = "\n".join(unique_lines)
+
+    # Process each block separately
+    blocks = cleaned_content.split("|-\n")
+    cleaned_blocks = []
+
+    for block in blocks:
+        lines = block.split("\n")
+        cleaned_lines = [line.rstrip() for line in lines if line.strip()]
+
+        # Clean up method signatures
+        method_pattern = re.compile(r"(.*\))\s+\[source\]")
+        for idx, line in enumerate(cleaned_lines):
+            match = method_pattern.match(line)
+            if match:
+                cleaned_lines[idx] = match.group(1)
+
+        # Combine lines for improved readability
+        idx = 0
+        idx = 0
+        while idx < len(cleaned_lines) - 1:
+            if not cleaned_lines[idx].endswith((".", ",", ":")) and not cleaned_lines[idx + 1].startswith(
+                ("Return type", ":rtype", "Parameters", ">>>", "...")
+            ):
+                cleaned_lines[idx] += " " + cleaned_lines.pop(idx + 1)
+            else:
+                idx += 1
+
+        cleaned_blocks.append("\n".join(cleaned_lines))
+
+    return "|-\n".join(cleaned_blocks)
