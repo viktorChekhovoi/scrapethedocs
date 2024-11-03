@@ -4,8 +4,8 @@ Functions to assist with link extraction
 
 from urllib.parse import urljoin, urlparse
 
+import bs4
 import requests
-from bs4 import BeautifulSoup
 
 
 def _get(url: str) -> requests.Response | None:
@@ -25,12 +25,6 @@ def _get(url: str) -> requests.Response | None:
     """
     try:
         response: requests.Response = requests.get(url, timeout=10)
-    except requests.exceptions.MissingSchema as invalid_exception:
-        print(f"Invalid URL: {url}, caused exception {invalid_exception}")
-        return None
-    except requests.exceptions.ConnectionError as connection_exception:
-        print(f"A connection error occurred: {connection_exception}")
-        return None
     except requests.exceptions.RequestException as general_exception:
         print(f"A request error occurred: {general_exception}")
         return None
@@ -61,10 +55,10 @@ def extract_links_by_class(base_url: str, classes: list[str]) -> list[str]:
     if response is None:
         return []
 
-    soup = BeautifulSoup(response.text, "html.parser")
-    internal_links: list[str] = soup.find_all("a", class_=" ".join(classes))
+    soup = bs4.BeautifulSoup(response.text, "html.parser")
     full_links = [base_url]
-    for link in internal_links:
+    for link_element in soup.find_all("a", class_=" ".join(classes), href=True):
+        link: str = link_element["href"]
         # Check if the link is an absolute link
         if bool(urlparse(link).netloc):
             full_links.append(link)

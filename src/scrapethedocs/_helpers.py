@@ -10,7 +10,7 @@ P = ParamSpec("P")
 T = TypeVar("T")
 
 
-def _to_sync(func: Callable[P, Awaitable[T]]) -> Callable[P, T]:
+def _to_sync(func: Callable[P, Awaitable[T]]) -> Callable[P, T]:  # pragma: no cover
     """
     Wraps an async function to convert it to a synchronous function
 

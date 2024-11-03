@@ -16,7 +16,7 @@ This module supports the following functions:
 
 import requests
 from scrapethedocs._link_extraction import extract_links_by_class, _get
-from scrapethedocs._text_extraction import get_all_titles, get_page_text
+from scrapethedocs._text_extraction import get_all_titles, get_page_text, clean_page_text
 
 
 def get_doc_home_url(package_name: str) -> str | None:
@@ -109,7 +109,8 @@ def extract_page(link: str) -> str | None:
     if response is None:
         return None
 
-    return get_page_text(response.text)
+    page_text = get_page_text(response.text)
+    return clean_page_text(page_text)
 
 
 def extract_docs(package_url: str) -> dict[str, str]:
