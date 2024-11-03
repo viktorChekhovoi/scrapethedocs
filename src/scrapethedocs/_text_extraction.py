@@ -36,6 +36,7 @@ async def _fetch_title_async(session: ClientSession, link: str, results: list[tu
     Raises:
         ValueError: the GET request returns any response except 200
     """
+    # internal_link_response = await session.get(link)
     async with session.get(link) as internal_link_response:
         if internal_link_response.status == 200:
             soup = BeautifulSoup(await internal_link_response.text(), "html.parser")
@@ -45,6 +46,7 @@ async def _fetch_title_async(session: ClientSession, link: str, results: list[tu
                 title = soup.title.string
             results.append((title, link))
         else:
+            print(internal_link_response.status)
             raise ValueError(f"Invalid link {link}, returned code {internal_link_response.status}")
 
 
