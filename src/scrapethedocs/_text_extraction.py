@@ -56,7 +56,7 @@ async def get_all_titles(links: list[str]) -> list[tuple[str, str]]:
     Get the titles for all links given.
 
     Args:
-        links:          the list of links to get titles for
+        links:          the list of links to get titles for. Invalid links are ignored
 
     Returns:
         unique_titles:  a list of tuples (title, link) with duplicates removed
@@ -74,7 +74,7 @@ async def get_all_titles(links: list[str]) -> list[tuple[str, str]]:
             if result and result[0] not in unique_titles:
                 unique_titles[result[0]] = result[1]
 
-    return list(unique_titles.values())
+    return list(unique_titles.items())
 
 
 def get_page_text(text: str) -> str:
