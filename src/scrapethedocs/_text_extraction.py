@@ -98,24 +98,17 @@ def get_page_text(text: str) -> str:
             return
 
         if isinstance(element, NavigableString):
+            print(element)
             text = element.strip()
             lines.append(text)
             processed_tags.add(element)
 
         elif isinstance(element, Tag):
-            if element.name in TEXT_ELEMENTS:
-                lines.append(element.text.strip())
-                processed_tags.add(element)
-
-            elif element.name == "div":
-                classes = element.get("class", [])
-                if classes is not None and "highlight" in classes:
-                    lines.append(element.text.strip())
-                    processed_tags.add(element)
-
-            else:
+            if any(True for _ in element.children):
                 for child in element:
-                    extract_text(child)
+                    if (isinstance(child, Tag) and child.name in (TEXT_ELEMENTS + ["div"])) or isinstance(child, NavigableString):
+                        print(child)
+                        extract_text(child)
 
     def find_relevant_content(element: Tag) -> Tag | None:
         if element.name == "div" and "class" in element.attrs and any(classname in element["class"] for classname in CONTENT_CLASSES):
