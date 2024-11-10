@@ -20,3 +20,19 @@ get_page_test_cases = [
     # Test with no relevant content div
     ("<div class='header'><h1>Header text</h1></div><p>Orphan paragraph</p>", ""),
 ]
+
+
+clean_text_test_cases = [
+    # Test removing non-printable characters
+    ("Hello\x00 World", "Hello World"),
+    # Test removing consecutive duplicate lines
+    ("Line 1.\nLine 2.\nLine 2.\nLine 3.", "Line 1.\nLine 2.\nLine 3."),
+    # Test trimming spaces
+    ("Line with spaces.     \nNext line;   ", "Line with spaces.\nNext line;"),
+    # Test method signature cleanup
+    ("def example_function(param): [source]\nThis is an example function.", "def example_function(param):\nThis is an example function."),
+    # Test combining lines without punctuation
+    ("This is a line\ncontinued here\nand then ending.", "This is a line continued here and then ending."),
+    # Test ignoring line combination for specific starts
+    ("This line should stay\n:rtype: int\nseparate due to rtype.", "This line should stay\n:rtype: int separate due to rtype."),
+]

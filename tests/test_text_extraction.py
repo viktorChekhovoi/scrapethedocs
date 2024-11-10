@@ -7,10 +7,11 @@ from unittest.mock import AsyncMock
 import pytest
 from aiohttp import ClientSession
 from pytest_mock import MockerFixture
-from test_data import get_page_test_cases
+from test_data import clean_text_test_cases, get_page_test_cases
 
 from scrapethedocs._text_extraction import (
     _fetch_title_async,
+    clean_page_text,
     get_all_titles,
     get_page_text,
 )
@@ -153,3 +154,12 @@ def test_get_page_text(html_input, expected_output):
     """
     result = get_page_text(html_input)
     assert result == expected_output
+
+
+@pytest.mark.parametrize("clean_input, clean_output", clean_text_test_cases)
+def test_clean_page_text(clean_input, clean_output):
+    """
+    Test a variety of texts to clean up
+    """
+    result = clean_page_text(clean_input)
+    assert result == clean_output

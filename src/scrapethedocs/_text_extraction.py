@@ -150,42 +150,33 @@ def clean_page_text(text: str) -> str:
     lines = doc.split("\n")
 
     # Remove duplicate lines
-    unique_lines = []
+    # pdb.set_trace()
+    unique_lines: list[str] = []
     prev_line = None
     for line in lines:
         if line != prev_line:
             unique_lines.append(line)
         prev_line = line
 
-    # Combine lines back into a string
-    cleaned_content = "\n".join(unique_lines)
+    cleaned_lines = [line.rstrip() for line in unique_lines if line.strip()]
 
-    # Process each block separately
-    blocks = cleaned_content.split("|-\n")
-    cleaned_blocks = []
+    # Clean up method signatures
+    method_pattern = re.compile(r"(.*\):?)\s+\[source\]")
+    for idx, line in enumerate(cleaned_lines):
+        print(line)
+        match = method_pattern.match(line)
+        if match:
+            cleaned_lines[idx] = match.group(1).rstrip()
+    print(cleaned_lines)
 
-    for block in blocks:
-        lines = block.split("\n")
-        cleaned_lines = [line.rstrip() for line in lines if line.strip()]
+    # Combine lines for improved readability
+    idx = 0
+    while idx < len(cleaned_lines) - 1:
+        if not cleaned_lines[idx].endswith((".", ",", ":")) and not cleaned_lines[idx + 1].startswith(
+            ("Return type", ":rtype", "Parameters", ">>>", "...")
+        ):
+            cleaned_lines[idx] += " " + cleaned_lines.pop(idx + 1)
+        else:
+            idx += 1
 
-        # Clean up method signatures
-        method_pattern = re.compile(r"(.*\))\s+\[source\]")
-        for idx, line in enumerate(cleaned_lines):
-            match = method_pattern.match(line)
-            if match:
-                cleaned_lines[idx] = match.group(1)
-
-        # Combine lines for improved readability
-        idx = 0
-        idx = 0
-        while idx < len(cleaned_lines) - 1:
-            if not cleaned_lines[idx].endswith((".", ",", ":")) and not cleaned_lines[idx + 1].startswith(
-                ("Return type", ":rtype", "Parameters", ">>>", "...")
-            ):
-                cleaned_lines[idx] += " " + cleaned_lines.pop(idx + 1)
-            else:
-                idx += 1
-
-        cleaned_blocks.append("\n".join(cleaned_lines))
-
-    return "|-\n".join(cleaned_blocks)
+    return "\n".join(cleaned_lines)
