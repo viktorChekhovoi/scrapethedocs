@@ -14,7 +14,6 @@ This module supports the following functions:
     extract_docs            Retrieve all text content of the documentation
 """
 
-import requests
 from scrapethedocs._link_extraction import extract_links_by_class, _get
 from scrapethedocs._text_extraction import get_all_titles, get_page_text, clean_page_text
 

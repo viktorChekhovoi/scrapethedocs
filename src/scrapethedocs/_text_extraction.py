@@ -94,8 +94,6 @@ def get_page_text(text: str) -> str:
     def extract_text(element: PageElement) -> None:
         nonlocal lines
         nonlocal processed_tags
-        if element in processed_tags:
-            return
 
         if isinstance(element, NavigableString):
             print(element)
@@ -150,7 +148,6 @@ def clean_page_text(text: str) -> str:
     lines = doc.split("\n")
 
     # Remove duplicate lines
-    # pdb.set_trace()
     unique_lines: list[str] = []
     prev_line = None
     for line in lines:
@@ -163,11 +160,9 @@ def clean_page_text(text: str) -> str:
     # Clean up method signatures
     method_pattern = re.compile(r"(.*\):?)\s+\[source\]")
     for idx, line in enumerate(cleaned_lines):
-        print(line)
         match = method_pattern.match(line)
         if match:
             cleaned_lines[idx] = match.group(1).rstrip()
-    print(cleaned_lines)
 
     # Combine lines for improved readability
     idx = 0
