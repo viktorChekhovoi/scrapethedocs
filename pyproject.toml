@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "scrapethedocs"
+name = "scrapethedocs_chekhv"
 version = "0.1.0"
 description = "Scrapethedocs is a Python-based tool designed to efficiently scrape and extract documentation from Python package websites "
 readme = "README.md"
