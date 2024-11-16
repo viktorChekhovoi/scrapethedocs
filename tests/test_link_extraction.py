@@ -5,7 +5,7 @@ Tests for the _link_extraction functions
 import requests
 from pytest_mock import MockerFixture
 
-from scrapethedocs._link_extraction import _get, extract_links_by_class
+from scrapethedocs_chekhv._link_extraction import _get, extract_links_by_class
 
 
 def test_get_success(mocker: MockerFixture):
@@ -61,7 +61,7 @@ def test_extract_links_by_class_success(mocker):
         </body>
     </html>
     """
-    mocker.patch("scrapethedocs._link_extraction._get", return_value=mock_response)
+    mocker.patch("scrapethedocs_chekhv._link_extraction._get", return_value=mock_response)
 
     base_url = "https://example.com"
     classes = ["link-class"]
@@ -75,7 +75,7 @@ def test_extract_links_by_class_no_response(mocker):
     """
     Test link extraction when no HTML is found for that link
     """
-    mocker.patch("scrapethedocs._link_extraction._get", return_value=None)
+    mocker.patch("scrapethedocs_chekhv._link_extraction._get", return_value=None)
 
     base_url = "https://example.com"
     classes = ["link-class"]
@@ -97,7 +97,7 @@ def test_extract_links_by_class_no_matching_links(mocker):
         </body>
     </html>
     """
-    mocker.patch("scrapethedocs._link_extraction._get", return_value=mock_response)
+    mocker.patch("scrapethedocs_chekhv._link_extraction._get", return_value=mock_response)
 
     base_url = "https://example.com"
     classes = ["link-class"]

@@ -9,7 +9,7 @@ from aiohttp import ClientSession, TCPConnector
 from anyio import create_task_group
 from bs4 import BeautifulSoup, NavigableString, PageElement, Tag
 
-from scrapethedocs._helpers import _to_sync
+from scrapethedocs_chekhv._helpers import _to_sync
 
 TEXT_ELEMENTS = ["p", "h1", "h2", "h3", "h4", "h5", "h6", "pre"]
 CONTENT_CLASSES = [

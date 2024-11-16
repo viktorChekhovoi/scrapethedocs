@@ -9,7 +9,7 @@ from aiohttp import ClientSession
 from pytest_mock import MockerFixture
 from test_data import clean_text_test_cases, get_page_test_cases
 
-from scrapethedocs._text_extraction import (
+from scrapethedocs_chekhv._text_extraction import (
     _fetch_title_async,
     clean_page_text,
     get_all_titles,
@@ -88,7 +88,7 @@ def test_get_all_titles_with_valid_links(mocker: MockerFixture):
     mock_results = [("Example Title", "http://example.com"), ("Another Title", "http://another.com")]
 
     mocker.patch(
-        "scrapethedocs._text_extraction._fetch_title_async",
+        "scrapethedocs_chekhv._text_extraction._fetch_title_async",
         side_effect=lambda session, link, results: results.append(next((title for title in mock_results if title[1] == link), None)),
     )
 
@@ -107,7 +107,7 @@ def test_get_all_titles_with_duplicate_titles(mocker: MockerFixture):
     mock_results = [("Example Title", "http://example.com"), ("Example Title", "http://another.com")]
 
     mocker.patch(
-        "scrapethedocs._text_extraction._fetch_title_async",
+        "scrapethedocs_chekhv._text_extraction._fetch_title_async",
         side_effect=lambda session, link, results: results.append(next((title for title in mock_results if title[1] == link), None)),
     )
 
@@ -126,7 +126,7 @@ def test_get_all_titles_with_invalid_links(mocker: MockerFixture):
     mock_results = [("Example Title", "http://example.com")]
 
     mocker.patch(
-        "scrapethedocs._text_extraction._fetch_title_async",
+        "scrapethedocs_chekhv._text_extraction._fetch_title_async",
         side_effect=lambda session, link, results: results.append(next((title for title in mock_results if title[1] == link), None)),
     )
 

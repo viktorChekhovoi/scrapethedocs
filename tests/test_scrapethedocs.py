@@ -14,7 +14,7 @@ from test_data import (
     get_section_titles_test_cases,
 )
 
-from scrapethedocs import (
+from scrapethedocs_chekhv import (
     extract_docs,
     extract_page,
     get_doc_home_url,
@@ -30,7 +30,7 @@ def test_get_doc_home_url(mocker: MockerFixture, package_name, mock_response, ex
     """
     mocked_response = Mock()
     mocked_response.json.return_value = mock_response
-    mock_get = mocker.patch("scrapethedocs._get", return_value=mocked_response)
+    mock_get = mocker.patch("scrapethedocs_chekhv._get", return_value=mocked_response)
 
     result = get_doc_home_url(package_name)
 
@@ -43,7 +43,7 @@ def test_get_doc_reference_url(mocker, package_url, mock_links, expected_links):
     """
     Test the get_doc_reference_url function with a variety of inputs.
     """
-    mock_extract_links = mocker.patch("scrapethedocs.extract_links_by_class", return_value=mock_links)
+    mock_extract_links = mocker.patch("scrapethedocs_chekhv.extract_links_by_class", return_value=mock_links)
 
     result = get_doc_reference_url(package_url)
 
@@ -56,9 +56,9 @@ def test_get_section_titles(mocker, package_url, mock_links, mock_titles, expect
     """
     Test the get_section_titles function with various inputs.
     """
-    mock_extract_links = mocker.patch("scrapethedocs.extract_links_by_class", return_value=mock_links)
+    mock_extract_links = mocker.patch("scrapethedocs_chekhv.extract_links_by_class", return_value=mock_links)
 
-    mock_get_all_titles = mocker.patch("scrapethedocs.get_all_titles", return_value=mock_titles)
+    mock_get_all_titles = mocker.patch("scrapethedocs_chekhv.get_all_titles", return_value=mock_titles)
 
     result = get_section_titles(package_url)
 
@@ -72,11 +72,11 @@ def test_extract_page(mocker, link, mock_response, mock_page_text, expected_resu
     """
     Test the extract_page function with various scenarios.
     """
-    mock_get = mocker.patch("scrapethedocs._get", return_value=mock_response)
+    mock_get = mocker.patch("scrapethedocs_chekhv._get", return_value=mock_response)
 
-    mock_get_page_text = mocker.patch("scrapethedocs.get_page_text", return_value=mock_page_text)
+    mock_get_page_text = mocker.patch("scrapethedocs_chekhv.get_page_text", return_value=mock_page_text)
 
-    mock_clean_page_text = mocker.patch("scrapethedocs.clean_page_text", return_value=expected_result)
+    mock_clean_page_text = mocker.patch("scrapethedocs_chekhv.clean_page_text", return_value=expected_result)
 
     result = extract_page(link)
 
@@ -93,10 +93,10 @@ def test_extract_docs(mocker, package_url, mocked_titles, expected_result):
     """
     Test the extract_docs function with various scenarios.
     """
-    mock_get_section_titles = mocker.patch("scrapethedocs._link_extraction.get_section_titles", return_value=mocked_titles)
+    mock_get_section_titles = mocker.patch("scrapethedocs_chekhv._link_extraction.get_section_titles", return_value=mocked_titles)
 
     mock_extract_page = mocker.patch(
-        "scrapethedocs._link_extraction.extract_page",
+        "scrapethedocs_chekhv._link_extraction.extract_page",
         side_effect=lambda link: f"Cleaned text for {link.split('/')[-1].capitalize()}" if link != "https://docs.example.com/api" else None,
     )
 
