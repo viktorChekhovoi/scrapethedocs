@@ -4,6 +4,7 @@ build-backend = "flit_core.buildapi"
 
 [project]
 name = "scrapethedocs"
+version = "0.1.0"
 description = "Scrapethedocs is a Python-based tool designed to efficiently scrape and extract documentation from Python package websites "
 readme = "README.md"
 classifiers = [
@@ -21,7 +22,9 @@ dependencies = [
     "types-requests == 2.31.0.2",
     "requests == 2.32.3",
 ]
-version = "0.1.0"
+authors = [
+    { name="Viktor Chekhovoi", email="viktor.chekhovoi@gmail.com" }
+]
 
 [project.optional-dependencies]
 dev = [
