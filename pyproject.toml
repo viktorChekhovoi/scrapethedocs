@@ -9,8 +9,10 @@ readme = "README.md"
 classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
 ]
-keywords = [""]
+keywords = ["webscraping", "documentation"]
 urls = {Homepage = "https://github.com/viktorChekhovoi/scrapethedocs"}
 requires-python = ">=3.12"
 dependencies = [
@@ -22,18 +24,8 @@ dependencies = [
 version = "0.1.0"
 
 [project.optional-dependencies]
-docs = [
-    "piccolo_theme >= 0.11.1",
-    "sphinx-autodoc-typehints == 1.14.1",
-    "sphinx-notfound-page == 0.8.3",
-    "sphinx_copybutton == 0.5.2",
-    "sphinx_tabs == 3.2.0",
-    "sphinx-prompt == 1.5.0",
-    "sphinx_toolbox == 3.4.0",
-]
 dev = [
     "black == 24.8.0",
-    "pydocstyle == 6.1.1",
     "flake8 == 4.0.1",
     "pytest == 8.3.3",
     "pytest-cov == 6.0.0",
@@ -78,14 +70,6 @@ ignore-imports = "yes"
 extension-pkg-whitelist = ""
 ignore-paths = ["^docs/*"]
 
-[tool.pylint.options]
-#generated-members="torch.*"
-
-#[tool.pytest.ini_options]
-#addopts = "-ra --cov={PACKAGE_NAME}--cov-report=term-missing --strict-markers --ignore=.eggs --tb=short --junitxml=test-results.xml --cov-report=html --cov-report=xml"
-#testpaths = ["tests"]
-#norecursedirs = ".env .git .venv build dist "
-#python_files = "test.py tests.py test_*.py *_test.py"
 
 [tool.isort]
 skip = ["__init__.py"]
